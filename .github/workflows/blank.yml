@@ -15,12 +15,12 @@ jobs:
       run: sudo apt-get install gh
 
     - name: Authenticate GitHub CLI
-      run: gh auth login --with-token <<< "${{ secrets.GH_TOKEN }}"
+      run: echo "${{ secrets.GH_TOKEN }}" | gh auth login --with-token
 
     - name: Search for mule-jms-connector in repositories
       run: |
         echo "Fetching repositories..."
-        repos=$(gh repo list Vishal-poc --limit 100 --json name --jq '.[] | select(.name | startswith("mule-")) | .name')
+        repos=$(gh repo list --limit 100 --json name --jq '.[] | select(.name | startswith("mule-")) | .name')
         
         echo "Repositories fetched:"
         echo "$repos"
@@ -28,15 +28,13 @@ jobs:
         repos_using_namespace=()
 
         for repo in $repos; do
-          echo "Searching in $repo"
-          file_name_result=$(gh code search --query "filename:mule-jms-connector repo:Vishal-poc/$repo" --json totalCount --jq '.totalCount')
-          folder_name_result=$(gh code search --query "path:mule-jms-connector repo:Vishal-poc/$repo" --json totalCount --jq '.totalCount')
-          file_content_result=$(gh code search --query "mule-jms-connector in:file repo:Vishal-poc/$repo" --json totalCount --jq '.totalCount')
-          
-          echo "Results for $repo - File Name: $file_name_result, Folder Name: $folder_name_result, File Content: $file_content_result"
-          
-          if [ "$file_name_result" -gt 0 ] || [ "$folder_name_result" -gt 0 ] || [ "$file_content_result" -gt 0 ]; then
-            repos_using_namespace+=($repo)
+          if [[ $repo == mule-* ]]; then
+            echo "Searching in $repo"
+            result=$(gh api -X GET "search/code?q=mule-jms-connector+in:file+repo:allegis-is/$repo" --jq '.total_count')
+            echo "Search result for $repo: $result"
+            if [ "$result" -gt 0 ]; then
+              repos_using_namespace+=($repo)
+            fi
           fi
         done
 

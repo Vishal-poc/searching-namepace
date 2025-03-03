@@ -1,4 +1,4 @@
-name: Searching for mule-jms-connector
+name: Search for mule-jms-connector
 
 on:
   workflow_dispatch:
@@ -20,7 +20,7 @@ jobs:
     - name: Search for mule-jms-connector in repositories
       run: |
         echo "Fetching repositories..."
-        repos=$(gh repo list --limit 100 --json name --jq '.[] | select(.name | startswith("mule-")) | .name')
+        repos=$(gh repo list Vishal-poc --limit 100 --json name --jq '.[] | select(.name | startswith("mule-")) | .name')
         
         echo "Repositories fetched:"
         echo "$repos"
@@ -30,7 +30,7 @@ jobs:
         for repo in $repos; do
           if [[ $repo == mule-* ]]; then
             echo "Searching in $repo"
-            result=$(gh api -X GET "search/code?q=mule-jms-connector+in:file+repo:allegis-is/$repo" --jq '.total_count')
+            result=$(gh api -X GET "search/code?q=mule-jms-connector+in:file+repo:Vishal-poc/$repo" -H "Accept: application/vnd.github+json" --jq '.total_count')
             echo "Search result for $repo: $result"
             if [ "$result" -gt 0 ]; then
               repos_using_namespace+=($repo)

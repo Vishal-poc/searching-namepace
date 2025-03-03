@@ -11,8 +11,8 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Install GitHub CLI
-      run: sudo apt-get install gh
+    - name: Install curl
+      run: sudo apt-get install curl
 
     - name: Authenticate GitHub CLI
       run: echo "${{ secrets.GH_TOKEN }}" | gh auth login --with-token
@@ -29,7 +29,7 @@ jobs:
 
         for repo in $repos; do
           echo "Searching in $repo"
-          result=$(gh api -X GET "search/code?q=mule-jms-connector+in:path+repo:Vishal-poc/$repo" -H "Accept: application/vnd.github+json" --jq '.total_count')
+          result=$(curl -s -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GH_TOKEN }}" "https://api.github.com/search/code?q=mule-jms-connector+in:path+repo:Vishal-poc/$repo" | jq '.total_count')
           echo "Search result for $repo: $result"
           if [ "$result" -gt 0 ]; then
             repos_using_namespace+=($repo)

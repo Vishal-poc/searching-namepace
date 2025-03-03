@@ -28,13 +28,11 @@ jobs:
         repos_using_namespace=()
 
         for repo in $repos; do
-          if [[ $repo == mule-* ]]; then
-            echo "Searching in $repo"
-            result=$(gh api -X GET "search/code?q=mule-jms-connector+in:file+repo:Vishal-poc/$repo" -H "Accept: application/vnd.github+json" --jq '.total_count')
-            echo "Search result for $repo: $result"
-            if [ "$result" -gt 0 ]; then
-              repos_using_namespace+=($repo)
-            fi
+          echo "Searching in $repo"
+          result=$(gh api -X GET "search/code?q=mule-jms-connector+in:file+repo:Vishal-poc/$repo" -H "Accept: application/vnd.github+json" --jq '.total_count')
+          echo "Search result for $repo: $result"
+          if [ "$result" -gt 0 ]; then
+            repos_using_namespace+=($repo)
           fi
         done
 
